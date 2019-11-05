@@ -17,6 +17,7 @@ public class HotelsHomePage {
     private final static String XPATH_FOR_DEPARTURE_DATE_INPUT= "//input[@id='qf-0q-localised-check-out']";
     private final static String XPATH_FOR_ARRIVAL_DATE_INPUT = "//input[@id='qf-0q-localised-check-in']";
     private final static String XPATH_FOR_LONG_STAY_LINK = "//div[@class='form-error']/span/a";
+    private final static String XPATH_FOR_HEADLINE = "//h1[@class='cont-hd-alt widget-query-heading']";
 
     private WebDriver driver;
 
@@ -37,6 +38,9 @@ public class HotelsHomePage {
 
     @FindBy(xpath = XPATH_FOR_LONG_STAY_LINK)
     private WebElement longStayLink;
+
+    @FindBy(xpath = XPATH_FOR_HEADLINE)
+    private WebElement headline;
 
     public HotelsHomePage(WebDriver driver){
         this.driver = driver;
@@ -66,7 +70,7 @@ public class HotelsHomePage {
 
     public void defineMainTermsForSearchHotel(SearchQueryMain hotelTerms){
         placeInput.sendKeys(hotelTerms.getPlace());
-        placeInput.click();
+        headline.click();
         new WebDriverWait(driver, WAIT_TIMEOUT_SECOND).until(ExpectedConditions.presenceOfElementLocated(By.xpath(XPATH_FOR_ARRIVAL_DATE_INPUT)));
         arrivalDateInput.clear();
         arrivalDateInput.sendKeys(hotelTerms.getArrivalDate());
@@ -75,11 +79,6 @@ public class HotelsHomePage {
         departureDateInput.sendKeys(hotelTerms.getDepartureDate());
         new WebDriverWait(driver, WAIT_TIMEOUT_SECOND).until(ExpectedConditions.elementToBeClickable(By.xpath(XPATH_FOR_ROOMS_ADULTS_SELECT)));
         roomsAdultsSelect.sendKeys(hotelTerms.getRoomsAdultsNumber());
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         searchButton = new WebDriverWait(driver, WAIT_TIMEOUT_SECOND).until(ExpectedConditions.elementToBeClickable(By.xpath(XPATH_FOR_SEARCH_BUTTON)));
         searchButton.click();
     }
