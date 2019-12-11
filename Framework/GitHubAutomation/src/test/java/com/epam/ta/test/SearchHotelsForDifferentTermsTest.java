@@ -37,31 +37,31 @@ public class SearchHotelsForDifferentTermsTest extends CommonConditions {
     @Test
     public void searchHotelWithNonexistentPlace(){
         Hotel testSearchQueryMain = HotelCreator.withNonexistentPlace();
-        String textOfButtonToSubmitFormForLongStay = new HotelsHomePage(driver)
+        String textOfMessageAboutNonexistentPlace = new HotelsHomePage(driver)
                 .openPage()
                 .defineMainTermsForSearchHotel(testSearchQueryMain)
                 .getTextOfMessageAboutNonexistentPlace();
-        assertThat(textOfButtonToSubmitFormForLongStay, is(equalTo("К сожалению, нам не удалось найти QQQ")));
+        assertThat(textOfMessageAboutNonexistentPlace, is(equalTo("К сожалению, нам не удалось найти QQQ")));
     }
 
     @Test
     public void searchHotelWithYesterdayDate(){
         Hotel testSearchQueryMain = HotelCreator.withYesterdayDate();
-        String textOfButtonToSubmitFormForLongStay = new HotelsHomePage(driver)
+        String textOfMessageAboutErrorsWithDate = new HotelsHomePage(driver)
                 .openPage()
                 .defineMainTermsForSearchHotel(testSearchQueryMain)
                 .getTextOfMessageAboutErrorsWithDate();
-        assertThat(textOfButtonToSubmitFormForLongStay, is(equalTo("Указана дата заезда раньше сегодняшнего дня")));
+        assertThat(textOfMessageAboutErrorsWithDate, is(equalTo("Указана дата заезда раньше сегодняшнего дня")));
     }
 
     @Test
     public void searchHotelWithoutDepartureDate(){
         Hotel testSearchQueryMain = HotelCreator.withoutDepartureDate();
-        String textOfButtonToSubmitFormForLongStay = new HotelsHomePage(driver)
+        String textOfMessageAboutErrorsWithDate = new HotelsHomePage(driver)
                 .openPage()
                 .defineMainTermsForSearchHotel(testSearchQueryMain)
                 .getTextOfMessageAboutErrorsWithDate();
-        assertThat(textOfButtonToSubmitFormForLongStay, is(equalTo("Укажите дату выезда")));
+        assertThat(textOfMessageAboutErrorsWithDate, is(equalTo("Укажите дату выезда")));
     }
 
     @Test
