@@ -1,15 +1,12 @@
 package com.epam.ta.page;
 
+import com.epam.ta.model.Hotel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.epam.ta.model.SearchQueryMain;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class HotelsHomePage extends AbstractPage{
 
@@ -23,6 +20,8 @@ public class HotelsHomePage extends AbstractPage{
     private final static String XPATH_FOR_ARRIVAL_DATE_INPUT = "//input[@id='qf-0q-localised-check-in']";
     private final static String XPATH_FOR_LONG_STAY_LINK = "//div[@class='form-error']/span/a";
     private final static String XPATH_FOR_HEADLINE = "//h1[@class='cont-hd-alt widget-query-heading']";
+    private final static String XPATH_FOR_MESSAGE_ABOUT_NONEXISTENT_PLACE = "//h2[@id='widget-overlay-title-1']";
+    private final static String XPATH_FOR_MESSAGE_ABOUT_ERRORS_WITH_DATES = "//div[@class='form-error']/span";
 
     @FindBy(xpath = XPATH_FOR_PLACE_INPUT)
     private WebElement placeInput;
@@ -56,38 +55,76 @@ public class HotelsHomePage extends AbstractPage{
         return this;
     }
 
-    public SearchHotelResultPage searchHotelForMainTerms(SearchQueryMain hotelTerms){
+    public HotelsHomePage inputPlace(String place){
+        placeInput.sendKeys(place);
+        headline.click();
+        return this;
+    }
+
+    public HotelsHomePage inputArrivalDate(String arrivalDate){
+        waitForElementLocatedBy(XPATH_FOR_ARRIVAL_DATE_INPUT);
+        arrivalDateInput.clear();
+        arrivalDateInput.sendKeys(arrivalDate);
+        headline.click();
+        return this;
+    }
+
+    public HotelsHomePage inputDepartureDate(String departureDate){
+        waitForElementLocatedBy(XPATH_FOR_DEPARTURE_DATE_INPUT);
+        departureDateInput.clear();
+        departureDateInput.sendKeys(departureDate);
+        headline.click();
+        return this;
+    }
+
+    public HotelsHomePage selectRoomNumber(int roomNumber){
+        waitForElementToBeClickable(XPATH_FOR_ROOMS_SELECT);
+        roomsSelect.sendKeys(String.valueOf(roomNumber));
+        headline.click();
+        return this;
+    }
+
+    public HotelsHomePage clickSearchButton(){
+        waitForElementToBeClickable(XPATH_FOR_SEARCH_BUTTON);
+        searchButton.click();
+        return this;
+    }
+
+    public HotelsHomePage defineMainTermsForSearchHotel(Hotel hotelTerms){
+        return inputPlace(hotelTerms.getPlace())
+                .inputArrivalDate(hotelTerms.getArrivalDate())
+                .inputDepartureDate(hotelTerms.getDepartureDate())
+                .selectRoomNumber(hotelTerms.getRoomsNumber())
+                .clickSearchButton();
+    }
+
+    public SearchHotelResultPage searchHotelForMainTerms(Hotel hotelTerms){
         defineMainTermsForSearchHotel(hotelTerms);
         logger.info("Search hotel result page opened");
         return new SearchHotelResultPage(driver, hotelTerms);
     }
 
-    public HotelsHomePage searchHotelForLongStay(SearchQueryMain hotelTerms){
+    public FormToSearchHotelsForLongStayOrForGroupPage searchHotelForGroup(Hotel hotelTerms){
         defineMainTermsForSearchHotel(hotelTerms);
-        return this;
+        logger.info("Page with form to search hotels for group opened");
+        return new FormToSearchHotelsForLongStayOrForGroupPage(driver);
     }
 
-    public FormToSearchHotelsForLongStayPage obtainFormToSearchHotelForLongStay(){
-        longStayLink = new WebDriverWait(driver, WAIT_TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(XPATH_FOR_LONG_STAY_LINK)));
+    public FormToSearchHotelsForLongStayOrForGroupPage obtainFormToSearchHotelForLongStay(){
+        longStayLink = waitForElementLocatedBy(XPATH_FOR_LONG_STAY_LINK);
         longStayLink.click();
-        logger.info("Page with form for search hotels for long stay opend");
-        return new FormToSearchHotelsForLongStayPage(driver);
+        logger.info("Page with form to search hotels for long stay opened");
+        return new FormToSearchHotelsForLongStayOrForGroupPage(driver);
     }
 
-    public void defineMainTermsForSearchHotel(SearchQueryMain hotelTerms){
-        placeInput.sendKeys(hotelTerms.getPlace());
-        headline.click();
-        new WebDriverWait(driver, WAIT_TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(XPATH_FOR_ARRIVAL_DATE_INPUT)));
-        arrivalDateInput.clear();
-        arrivalDateInput.sendKeys(hotelTerms.getArrivalDate());
-        new WebDriverWait(driver, WAIT_TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(XPATH_FOR_DEPARTURE_DATE_INPUT)));
-        departureDateInput.clear();
-        departureDateInput.sendKeys(hotelTerms.getDepartureDate());
-        headline.click();
-        new WebDriverWait(driver, WAIT_TIMEOUT_SECONDS).until(ExpectedConditions.elementToBeClickable(By.xpath(XPATH_FOR_ROOMS_SELECT)));
-        roomsSelect.sendKeys(String.valueOf(hotelTerms.getRoomsNumber()));
-        headline.click();
-        searchButton = new WebDriverWait(driver, WAIT_TIMEOUT_SECONDS).until(ExpectedConditions.elementToBeClickable(By.xpath(XPATH_FOR_SEARCH_BUTTON)));
-        searchButton.click();
+
+    public String getTextOfMessageAboutNonexistentPlace(){
+        return waitForElementLocatedBy(XPATH_FOR_MESSAGE_ABOUT_NONEXISTENT_PLACE)
+                .getText();
+    }
+
+    public String getTextOfMessageAboutErrorsWithDate(){
+        return waitForElementLocatedBy(XPATH_FOR_MESSAGE_ABOUT_ERRORS_WITH_DATES)
+                .getText();
     }
 }
